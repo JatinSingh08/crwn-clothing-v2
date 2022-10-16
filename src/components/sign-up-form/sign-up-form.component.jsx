@@ -1,10 +1,11 @@
 import './sign-up-form.styles.scss'
 import { async } from '@firebase/util';
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { createAuthUserWithEmailAndPassword, createUserDocumentFromAuth } from '../../utils/firebase/firebase.utils';
 import FormInput from '../form-input.component.jsx/form-input.component';
 import Button from '../button/button.component';
-const defaultFormFields = {
+import { UserContext } from '../contexts/user.context';
+const defaultFormFields = { //default i.e. empty form 
   displayName: '',
   email: '',
   password: '',
@@ -12,21 +13,20 @@ const defaultFormFields = {
 }
 const SignUpForm = () => {
   const [formFields, setFormFields] = useState(defaultFormFields);
-  const {displayName, email, password, confirmPassword} = formFields;
+  const {displayName, email, password, confirmPassword} = formFields;//destructuring formFields
 
   const resetFormFields = () => {
-    setFormFields(defaultFormFields);
+    setFormFields(defaultFormFields); //again reseting the form after submitting
   }
 
   const handleSubmit = async (event) =>{
-    event.preventDefault();
+    event.preventDefault(); //prevent default behaviour of submit button
     if(password !== confirmPassword) {
       alert("password do not match")
       return;
     }
     try {
-      const {user} = createAuthUserWithEmailAndPassword(email, password)
-     
+      const {user} = createAuthUserWithEmailAndPassword(email, password)     
       await createUserDocumentFromAuth(user, {displayName})
       resetFormFields();
     } catch (error) {
@@ -38,10 +38,10 @@ const SignUpForm = () => {
     
     }
   }
-  console.log(formFields);
-  const handleChange = (event) => {
+  // console.log(formFields);
+  const handleChange = (event) => { //on changing the input value
     const {name, value} = event.target;
-    setFormFields({...formFields, [name]: value})
+    setFormFields({...formFields, [name]: value})//put value in the name keyword
   }
 
   return (

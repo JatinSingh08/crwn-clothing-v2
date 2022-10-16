@@ -5,7 +5,9 @@ import {
   signInWithPopup, 
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
 } from 'firebase/auth'
 
 import {
@@ -14,6 +16,7 @@ import {
   getDoc,
   setDoc
 } from 'firebase/firestore'
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAKKhXdtAlECCiCSAjNLTIn2GIAmz1YynM",
@@ -27,37 +30,38 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 
+//creating the googleProvider 
 const provider = new GoogleAuthProvider();
-
 provider.setCustomParameters({
   prompt: "select_account"
 })
 
-export const auth = getAuth();
+export const auth = getAuth(); //getting auth
 export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
 export const signInWithGoogleRedirect = () => signInWithRedirect(auth, provider);
 
-export const db = getFirestore();
+export const db = getFirestore(); //getting the database using getFirestore();
 
 export const createUserDocumentFromAuth = async (
   userAuth,
   additionalInformation = {}
   ) => {
+
   if(!userAuth) return;
 
-  const userDocRef = doc(db, 'users', userAuth.uid);
+  const userDocRef = doc(db, 'users', userAuth.uid); //creating the document reference for database
   console.log(userDocRef);
 
-  const userSnapShot = await getDoc(userDocRef);
+  const userSnapShot = await getDoc(userDocRef); //getting the document reference
   console.log(userSnapShot);
-  console.log(userSnapShot.exists());
+  console.log(userSnapShot.exists()); //checking if the user already exists
   
   if(!userSnapShot.exists()) {
-    const {displayName, email} = userAuth;
-    const createdAt = new Date();
+    const {displayName, email} = userAuth; //destructuring displayName & email from userAuth
+    const createdAt = new Date(); //taking the date 
 
     try {
-      await setDoc(userDocRef, {
+      await setDoc(userDocRef, { //setDoc takes arguments as doc ref & the parameters to update
         displayName,
         email,
         createdAt
@@ -72,15 +76,21 @@ export const createUserDocumentFromAuth = async (
 
 };
 
-export const createAuthUserWithEmailAndPassword = async (email, password) => {
-
+export const createAuthUserWithEmailAndPassword = async (email, password) => { 
+  
+  //creating user with email & password
   if(!email || !password) return;
 
   return await createUserWithEmailAndPassword(auth, email, password);
 }
 export const singInAuthUserWithEmailAndPassword = async (email, password) => {
 
+  //creating sign in with email & password
   if(!email || !password) return;
 
   return await signInWithEmailAndPassword(auth, email, password);
 }
+
+export const signOutUser = async () => await signOut(auth);
+
+export const onAuthStateChangedListener = (callback) => onAuthStateChanged(auth, callback);
